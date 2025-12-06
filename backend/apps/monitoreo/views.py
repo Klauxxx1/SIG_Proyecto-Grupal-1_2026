@@ -18,7 +18,7 @@ class ReportarUbicacionView(APIView):
             device_id = serializer.validated_data['device_id']
             lat = serializer.validated_data['latitud']
             lon = serializer.validated_data['longitud']
-            
+
             # 1. Buscar al niño
             try:
                 nino = Nino.objects.get(device_id=device_id)
@@ -27,11 +27,11 @@ class ReportarUbicacionView(APIView):
 
             # 2. Crear el Punto Geográfico
             punto_actual = Point(lon, lat, srid=4326) # OJO: El orden es (Longitud, Latitud)
-            
+
             # 3. VERIFICACIÓN DE GEOCERCA (El corazón del proyecto)
             esta_seguro = True
             mensaje = "Seguro"
-            
+
             if nino.institucion and nino.institucion.area:
                 # Preguntamos: ¿El polígono del kinder CONTIENE al punto actual?
                 if nino.institucion.area.contains(punto_actual):
@@ -51,48 +51,48 @@ class ReportarUbicacionView(APIView):
             nino.ultima_ubicacion = punto_actual
             nino.last_status = mensaje
             nino.save()
-            
+
             # 5. Guardar historial
             HistorialUbicacion.objects.create(
                 nino=nino,
                 ubicacion=punto_actual,
                 fuera_de_zona=not esta_seguro
             )
-            
+
             return Response({
                 "status": "success",
                 "seguro": esta_seguro,
                 "mensaje": mensaje
             })
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class DatosMapaPadreView(APIView):
     # GET /api/monitoreo/mapa-padre/?device_id=android123
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         device_id = request.query_params.get('device_id')
-        
+
         try:
             # validar que el nino pertenece al padre logueado
             nino = Nino.objects.get(device_id=device_id, tutor=request.user)
         except Nino.DoesNotExist:
             return Response({"error": "No autorizado o niño no encontrado"}, status=403)
-        
+
         data = {
             "nombre_nino": nino.nombre,
             "ultima_actualizacion": nino.ultima_actualizacion,
             "estado": nino.last_status,
-            
+
             # 1. Ubicación del Niño
             "ubicacion_actual": {
                 "lat": nino.ultima_ubicacion.y if nino.ultima_ubicacion else 0,
                 "lng": nino.ultima_ubicacion.x if nino.ultima_ubicacion else 0,
             },
-            
+
             # 2. Polígono del Kinder (La Geocerca)
-            "poligono_kinder": [] 
+            "poligono_kinder": []
         }
 
         # Si tiene kinder asignado y dibujo, extraemos las coordenadas
@@ -104,12 +104,12 @@ class DatosMapaPadreView(APIView):
             data["nombre_kinder"] = nino.institucion.nombre
 
         return Response(data)
-    
+
 # 1. LISTA DE HIJOS (Dashboard Principal)
 # Solo devuelve los niños que pertenecen al padre logueado
 class MisHijosListView(generics.ListAPIView):
     serializer_class = NinoSerializer
-    permission_classes = [permissions.IsAuthenticated] 
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         # FILTRO MÁGICO: "Trae los niños cuyo tutor sea el usuario actual"
@@ -125,18 +125,40 @@ class HistorialRutaView(APIView):
             nino = Nino.objects.get(device_id=device_id, tutor=request.user)
         except Nino.DoesNotExist:
             return Response({"error": "No autorizado o niño no existe"}, status=403)
-            
+
         # Obtener los últimos 100 puntos (o filtrar por fecha)
         puntos = HistorialUbicacion.objects.filter(nino=nino).order_by('-timestamp')[:100]
-        
+
         # Formato para Flutter (Lista de Lat/Lng)
         ruta = [{"lat": p.ubicacion.y, "lng": p.ubicacion.x, "fecha": p.timestamp} for p in puntos]
-        
+
         return Response(ruta)
-    
+
 class DashboardPadreUnificadoView(generics.ListAPIView):
     serializer_class = DashboardHijoSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Nino.objects.filter(tutor=self.request.user)
+
+
+# ========================================
+# CRUD DE INSTITUCIONES
+# ========================================
+from rest_framework import viewsets
+from .models import Institucion
+from .serializers import InstitucionSerializer
+
+class InstitucionViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para gestionar instituciones educativas con áreas geográficas.
+
+    - GET /api/monitoreo/instituciones/ - Listar todas
+    - POST /api/monitoreo/instituciones/ - Crear nueva
+    - GET /api/monitoreo/instituciones/{id}/ - Ver una
+    - PUT /api/monitoreo/instituciones/{id}/ - Editar
+    - DELETE /api/monitoreo/instituciones/{id}/ - Eliminar
+    """
+    queryset = Institucion.objects.all()
+    serializer_class = InstitucionSerializer
+    permission_classes = [IsAuthenticated]
