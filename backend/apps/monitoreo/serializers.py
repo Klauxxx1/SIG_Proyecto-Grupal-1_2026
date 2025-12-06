@@ -1,15 +1,20 @@
 # backend/apps/monitoreo/serializers.py
 from rest_framework import serializers
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .models import Nino, Institucion, HistorialUbicacion
 
-class InstitucionSerializer(serializers.ModelSerializer):
+class InstitucionSerializer(GeoFeatureModelSerializer):
+    """
+    Serializer para Instituciones que maneja automáticamente campos GeoJSON
+    """
     class Meta:
         model = Institucion
+        geo_field = 'area'  # Campo geográfico que se serializará como geometry
         fields = ['id', 'nombre', 'direccion', 'area']
 
 class NinoSerializer(serializers.ModelSerializer):
     institucion_nombre = serializers.ReadOnlyField(source='institucion.nombre')
-    
+
     class Meta:
         model = Nino
         fields = ['id', 'nombre', 'device_id', 'activo', 'last_status', 'institucion', 'institucion_nombre']
@@ -47,4 +52,4 @@ class DashboardHijoSerializer(serializers.ModelSerializer):
             coords = obj.institucion.area.coords[0]
             return [{"lat": p[1], "lng": p[0]} for p in coords]
         return []
-    
+

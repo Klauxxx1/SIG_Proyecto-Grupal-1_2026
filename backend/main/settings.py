@@ -6,7 +6,7 @@ from datetime import timedelta
 
 load_dotenv()
 
-# Configuración específica para Windows y QGIS
+# Configuración específica para Windows y QGIS (DESHABILITADO TEMPORALMENTE)
 if os.name == 'nt':
     QGIS_BIN_PATH = os.getenv('QGIS_BIN_PATH')
 
@@ -16,13 +16,13 @@ if os.name == 'nt':
 
         # 2. [NUEVO] Calculamos la ruta a la carpeta 'share/proj' de QGIS
         # Si la ruta bin es "C:/.../bin", subimos un nivel para hallar "share"
-        qgis_root = os.path.dirname(QGIS_BIN_PATH) 
+        qgis_root = os.path.dirname(QGIS_BIN_PATH)
         proj_lib_path = os.path.join(qgis_root, "share", "proj")
-        
+
         # Forzamos a que use ESTA ruta para las proyecciones
         os.environ['PROJ_LIB'] = proj_lib_path
-        
-        # 3. Apuntamos al archivo DLL. 
+
+        # 3. Apuntamos al archivo DLL.
         GDAL_LIBRARY_PATH = os.path.join(QGIS_BIN_PATH, "gdal311.dll")
     else:
         print("ADVERTENCIA: No se encontró la variable QGIS_BIN_PATH en el .env o la ruta no existe.")
@@ -44,10 +44,12 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django.contrib.gis',
     'rest_framework',
+    'rest_framework_gis',
     'firebase_admin',
     'rest_framework_simplejwt',
     'django_filters',
-    
+    'corsheaders',
+
     'apps.monitoreo',
     'apps.usuarios',
 ]
@@ -56,6 +58,7 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -111,6 +114,15 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30), # Sesión larga para la app
 }
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3039",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3039",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = os.getenv('TIME_ZONE')
