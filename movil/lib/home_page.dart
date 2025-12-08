@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'modo_nino_page.dart';
 import 'login_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'notification_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,6 +15,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _idController = TextEditingController(text: "android123");
 
+// Notificaciones de alerta
+  @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {      
+      if (message.notification != null) {
+        NotificationService().mostrarNotificacion(
+          message.notification!.title ?? "ALERTA",
+          message.notification!.body ?? "Atención requerida"
+        );
+      }
+    });
+  }
+
+// Interfaz de selección de modo
   @override
   Widget build(BuildContext context) {
     return Scaffold(

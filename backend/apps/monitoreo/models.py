@@ -42,7 +42,8 @@ class HistorialUbicacion(models.Model):
     ubicacion = models.PointField(srid=4326)
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
     fuera_de_zona = models.BooleanField(default=False)
-
+    bateria = models.IntegerField(null=True, blank=True)
+    
     class Meta:
         indexes = [
             models.Index(fields=['timestamp']),

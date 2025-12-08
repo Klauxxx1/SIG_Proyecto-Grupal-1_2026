@@ -7,6 +7,7 @@ from .models import Nino, HistorialUbicacion
 from .serializers import UbicacionUpdateSerializer, NinoSerializer, DashboardHijoSerializer
 from django.utils import timezone
 from .utils import enviar_alerta_push
+from datetime import datetime
 
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
@@ -120,17 +121,27 @@ class HistorialRutaView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, device_id):
-        # Verificar que el niño sea de este padre (Seguridad)
+        fecha_str = request.query_params.get('fecha')  # Espera formato 'YYYY-MM-DD'
         try:
             nino = Nino.objects.get(device_id=device_id, tutor=request.user)
         except Nino.DoesNotExist:
             return Response({"error": "No autorizado o niño no existe"}, status=403)
-
-        # Obtener los últimos 100 puntos (o filtrar por fecha)
-        puntos = HistorialUbicacion.objects.filter(nino=nino).order_by('-timestamp')[:100]
-
-        # Formato para Flutter (Lista de Lat/Lng)
-        ruta = [{"lat": p.ubicacion.y, "lng": p.ubicacion.x, "fecha": p.timestamp} for p in puntos]
+        
+        query = HistorialUbicacion.objects.filter(nino=nino)
+        if fecha_str:
+            try:
+                fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+                query = query.filter(timestamp__date=(fecha))
+            except ValueError:
+                pass
+        puntos = query.order_by('timestamp')
+        
+        ruta = [{
+            "lat": p.ubicacion.y, 
+            "lng": p.ubicacion.x, 
+            "hora": p.timestamp.strftime("%H:%M"), 
+            "bateria": p.bateria 
+        } for p in puntos]
 
         return Response(ruta)
 

@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:battery_plus/battery_plus.dart';
 
 class SafeKidHome extends StatefulWidget {
   final String deviceId;
@@ -49,7 +50,6 @@ class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
           _colorEstado = Colors.orange;
         });
       }
-      // Opcional: abrir ajustes del sistema
     }
 
     // 2) Pedir permisos con Geolocator
@@ -57,7 +57,8 @@ class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+    if (permission == LocationPermission.deniedForever ||
+        permission == LocationPermission.denied) {
       if (mounted) {
         setState(() {
           _estado = "Permiso de ubicación requerido";
@@ -81,6 +82,9 @@ class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
   }
 
   Future<void> _reportarUbicacion() async {
+    var battery = Battery();
+    int nivelBateria = await battery.batteryLevel;
+
     if (!mounted) return;
     setState(() {
       _estado = "Enviando...";
@@ -88,7 +92,10 @@ class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
     });
 
     try {
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 10));
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
 
       Map<String, dynamic> data = {
         "device_id": widget.deviceId,
@@ -96,13 +103,16 @@ class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
         "longitud": position.longitude,
         "fcm_token": _miToken,
         "timestamp": DateTime.now().toIso8601String(),
+        "bateria": nivelBateria,
       };
 
-      final response = await http.post(
-        Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(data),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .post(
+            Uri.parse(backendUrl),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(data),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final r = jsonDecode(response.body);
@@ -126,7 +136,6 @@ class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
         }
       }
     } catch (e) {
-      print("Error reportando ubicación: $e");
       if (mounted) {
         setState(() {
           _estado = "Error conexión";
@@ -146,7 +155,10 @@ class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
       });
     } else {
       // Recomiendo >=15s en producción
-      _timer = Timer.periodic(const Duration(seconds: 15), (t) => _reportarUbicacion());
+      _timer = Timer.periodic(
+        const Duration(seconds: 15),
+        (t) => _reportarUbicacion(),
+      );
       setState(() {
         _rastreando = true;
         _estado = "Rastreando...";
@@ -169,9 +181,15 @@ class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
             const SizedBox(height: 10),
             Text(_estado, style: const TextStyle(fontSize: 20)),
             const SizedBox(height: 8),
-            Text("Device ID: ${widget.deviceId}", style: const TextStyle(fontSize: 12)),
+            Text(
+              "Device ID: ${widget.deviceId}",
+              style: const TextStyle(fontSize: 12),
+            ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: _toggleRastreo, child: Text(_rastreando ? "DETENER" : "ACTIVAR")),
+            ElevatedButton(
+              onPressed: _toggleRastreo,
+              child: Text(_rastreando ? "DETENER" : "ACTIVAR"),
+            ),
           ],
         ),
       ),

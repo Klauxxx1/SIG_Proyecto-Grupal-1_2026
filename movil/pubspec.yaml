@@ -43,6 +43,8 @@ dependencies:
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
   shared_preferences: ^2.5.3
+  flutter_local_notifications: ^19.5.0
+  battery_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:

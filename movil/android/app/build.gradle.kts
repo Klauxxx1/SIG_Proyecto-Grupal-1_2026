@@ -30,6 +30,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        //agregue esto
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -64,6 +66,9 @@ flutter {
 }
 
 dependencies {
+    // 
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
     // Importar la plataforma BOM de Firebase (Maneja las versiones por ti)
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
 
