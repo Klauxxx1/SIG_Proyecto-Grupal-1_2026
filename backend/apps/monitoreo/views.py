@@ -126,7 +126,7 @@ class HistorialRutaView(APIView):
             nino = Nino.objects.get(device_id=device_id, tutor=request.user)
         except Nino.DoesNotExist:
             return Response({"error": "No autorizado o niño no existe"}, status=403)
-        
+
         query = HistorialUbicacion.objects.filter(nino=nino)
         if fecha_str:
             try:
@@ -135,12 +135,12 @@ class HistorialRutaView(APIView):
             except ValueError:
                 pass
         puntos = query.order_by('timestamp')
-        
+
         ruta = [{
-            "lat": p.ubicacion.y, 
-            "lng": p.ubicacion.x, 
-            "hora": p.timestamp.strftime("%H:%M"), 
-            "bateria": p.bateria 
+            "lat": p.ubicacion.y,
+            "lng": p.ubicacion.x,
+            "hora": p.timestamp.strftime("%H:%M"),
+            "bateria": p.bateria
         } for p in puntos]
 
         return Response(ruta)
@@ -154,7 +154,7 @@ class DashboardPadreUnificadoView(generics.ListAPIView):
 
 
 # ========================================
-# CRUD DE NIÑOS 
+# CRUD DE NIÑOS
 # ========================================
 from rest_framework import viewsets
 from .models import Institucion
@@ -164,7 +164,7 @@ from rest_framework.permissions import IsAdminUser
 class NinoViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar niños (SOLO ADMIN).
-    
+
     El administrador puede:
     - GET /api/monitoreo/ninos/ - Listar TODOS los niños
     - POST /api/monitoreo/ninos/ - Crear un nuevo niño
@@ -175,7 +175,7 @@ class NinoViewSet(viewsets.ModelViewSet):
     """
     queryset = Nino.objects.all()  # Admin ve TODOS los niños
     serializer_class = NinoSerializer
-    
+
 
 
 # ========================================
@@ -199,4 +199,27 @@ class InstitucionViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return [AllowAny()]
         return [IsAdminUser()]
+
+
+# ========================================
+# ENDPOINT PARA WEB: LISTAR NIÑOS POR INSTITUCIÓN
+# ========================================
+class NinosPorInstitucionView(generics.ListAPIView):
+    """
+    API endpoint para listar niños de una institución específica.
+
+    - GET /api/monitoreo/instituciones/{id}/ninos/ - Listar todos los niños de una institución
+
+    Retorna la información completa de cada niño incluyendo:
+    - Datos básicos del niño
+    - Última ubicación
+    - Estado actual
+    - Información del tutor
+    """
+    serializer_class = NinoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        institucion_id = self.kwargs.get('institucion_id')
+        return Nino.objects.filter(institucion_id=institucion_id)
 

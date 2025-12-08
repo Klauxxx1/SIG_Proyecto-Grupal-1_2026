@@ -8,7 +8,8 @@ from .views import (
     HistorialRutaView,
     DashboardPadreUnificadoView,
     NinoViewSet,
-    InstitucionViewSet
+    InstitucionViewSet,
+    NinosPorInstitucionView
 )
 
 # ========================================
@@ -28,6 +29,9 @@ urlpatterns = [
     path('mis-hijos/', MisHijosListView.as_view(), name='mis-hijos'),
     path('historial/<str:device_id>/', HistorialRutaView.as_view(), name='historial-ruta'),
     path('dashboard-unificado/', DashboardPadreUnificadoView.as_view(), name='dashboard-unificado'),
+
+    # Endpoint para frontend web: listar niños por institución
+    path('instituciones/<int:institucion_id>/ninos/', NinosPorInstitucionView.as_view(), name='ninos-por-institucion'),
 
     # Incluir URLs del router (CRUD automático)
     path('', include(router.urls)),
