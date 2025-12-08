@@ -13,11 +13,12 @@ class InstitucionSerializer(GeoFeatureModelSerializer):
         fields = ['id', 'nombre', 'direccion', 'area']
 
 class NinoSerializer(serializers.ModelSerializer):
-    institucion_nombre = serializers.ReadOnlyField(source='institucion.nombre')
+    institucion_nombre = serializers.CharField(source='institucion.nombre', read_only=True)
+    tutor_nombre = serializers.CharField(source='tutor.username', read_only=True)
 
     class Meta:
         model = Nino
-        fields = ['id', 'nombre', 'device_id', 'activo', 'last_status', 'institucion', 'institucion_nombre']
+        fields = ['id', 'nombre', 'device_id', 'activo', 'last_status', 'tutor', 'tutor_nombre', 'institucion', 'institucion_nombre', 'ultima_ubicacion', 'ultima_actualizacion']
 
 class UbicacionUpdateSerializer(serializers.Serializer):
     # Este no es un modelo, es solo para validar lo que manda el celular

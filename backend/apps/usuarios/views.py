@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework import status, viewsets, permissions
+from rest_framework.permissions import AllowAny, IsAdminUser
 from .models import Usuario
 from .serializers import UsuarioSerializer
 
@@ -96,12 +97,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     CRUD completo de usuarios/tutores
 
     Endpoints:
-    - GET /api/usuarios/ - Listar todos
-    - POST /api/usuarios/ - Crear nuevo
-    - GET /api/usuarios/{id}/ - Ver detalle
-    - PUT /api/usuarios/{id}/ - Editar completo
-    - PATCH /api/usuarios/{id}/ - Editar parcial
-    - DELETE /api/usuarios/{id}/ - Eliminar
+    - GET /api/usuarios/ - Listar todos (público)
+    - POST /api/usuarios/ - Crear nuevo (solo admin)
+    - GET /api/usuarios/{id}/ - Ver detalle (público)
+    - PUT /api/usuarios/{id}/ - Editar completo (solo admin)
+    - PATCH /api/usuarios/{id}/ - Editar parcial (solo admin)
+    - DELETE /api/usuarios/{id}/ - Eliminar (solo admin)
 
     Filtros:
     - ?es_tutor=true - Solo tutores
@@ -109,7 +110,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     """
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        """Permitir lectura sin autenticación, pero crear/editar solo para admin"""
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
 
     def get_queryset(self):
         queryset = Usuario.objects.all()

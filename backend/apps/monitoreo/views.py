@@ -9,8 +9,8 @@ from django.utils import timezone
 from .utils import enviar_alerta_push
 from datetime import datetime
 
-from rest_framework import generics, permissions
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, permissions, viewsets
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 class ReportarUbicacionView(APIView):
     def post(self, request):
@@ -110,7 +110,7 @@ class DatosMapaPadreView(APIView):
 # Solo devuelve los niños que pertenecen al padre logueado
 class MisHijosListView(generics.ListAPIView):
     serializer_class = NinoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []  # Sin autenticación requerida
 
     def get_queryset(self):
         # FILTRO MÁGICO: "Trae los niños cuyo tutor sea el usuario actual"
@@ -185,13 +185,18 @@ class InstitucionViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar instituciones educativas con áreas geográficas.
 
-    - GET /api/monitoreo/instituciones/ - Listar todas
-    - POST /api/monitoreo/instituciones/ - Crear nueva
-    - GET /api/monitoreo/instituciones/{id}/ - Ver una
-    - PUT /api/monitoreo/instituciones/{id}/ - Editar
-    - DELETE /api/monitoreo/instituciones/{id}/ - Eliminar
+    - GET /api/monitoreo/instituciones/ - Listar todas (público)
+    - POST /api/monitoreo/instituciones/ - Crear nueva (solo admin)
+    - GET /api/monitoreo/instituciones/{id}/ - Ver una (público)
+    - PUT /api/monitoreo/instituciones/{id}/ - Editar (solo admin)
+    - DELETE /api/monitoreo/instituciones/{id}/ - Eliminar (solo admin)
     """
     queryset = Institucion.objects.all()
     serializer_class = InstitucionSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        """Permitir lectura sin autenticación, pero crear/editar solo para admin"""
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
 
