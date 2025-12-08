@@ -154,12 +154,33 @@ class DashboardPadreUnificadoView(generics.ListAPIView):
 
 
 # ========================================
-# CRUD DE INSTITUCIONES
+# CRUD DE NIÑOS 
 # ========================================
 from rest_framework import viewsets
 from .models import Institucion
 from .serializers import InstitucionSerializer
+from rest_framework.permissions import IsAdminUser
 
+class NinoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para gestionar niños (SOLO ADMIN).
+    
+    El administrador puede:
+    - GET /api/monitoreo/ninos/ - Listar TODOS los niños
+    - POST /api/monitoreo/ninos/ - Crear un nuevo niño
+    - GET /api/monitoreo/ninos/{id}/ - Ver un niño específico
+    - PUT /api/monitoreo/ninos/{id}/ - Editar un niño
+    - PATCH /api/monitoreo/ninos/{id}/ - Editar parcialmente
+    - DELETE /api/monitoreo/ninos/{id}/ - Eliminar un niño
+    """
+    queryset = Nino.objects.all()  # Admin ve TODOS los niños
+    serializer_class = NinoSerializer
+    
+
+
+# ========================================
+# CRUD DE INSTITUCIONES
+# ========================================
 class InstitucionViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar instituciones educativas con áreas geográficas.
@@ -173,3 +194,4 @@ class InstitucionViewSet(viewsets.ModelViewSet):
     queryset = Institucion.objects.all()
     serializer_class = InstitucionSerializer
     permission_classes = [IsAuthenticated]
+

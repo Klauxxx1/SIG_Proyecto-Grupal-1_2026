@@ -7,20 +7,28 @@ from .views import (
     MisHijosListView,
     HistorialRutaView,
     DashboardPadreUnificadoView,
+    NinoViewSet,
     InstitucionViewSet
 )
 
-# Router para ViewSets (CRUD automático)
+# ========================================
+# ROUTER PARA VIEWSETS (CRUD AUTOMÁTICO)
+# ========================================
 router = DefaultRouter()
-router.register(r'instituciones', InstitucionViewSet, basename='institucion')
+router.register(r'ninos', NinoViewSet, basename='nino')  # CRUD Niños (Admin)
+router.register(r'instituciones', InstitucionViewSet, basename='institucion')  # CRUD Instituciones
 
+# ========================================
+# URLS DE MONITOREO
+# ========================================
 urlpatterns = [
+    # Endpoints especiales (no CRUD)
     path('reportar/', ReportarUbicacionView.as_view(), name='reportar-ubicacion'),
     path('mapa-padre/', DatosMapaPadreView.as_view(), name='mapa-padre'),
-    path('mis-hijos/', MisHijosListView.as_view()),
-    path('historial/<str:device_id>/', HistorialRutaView.as_view()),
-    path('dashboard-unificado/', DashboardPadreUnificadoView.as_view()),
+    path('mis-hijos/', MisHijosListView.as_view(), name='mis-hijos'),
+    path('historial/<str:device_id>/', HistorialRutaView.as_view(), name='historial-ruta'),
+    path('dashboard-unificado/', DashboardPadreUnificadoView.as_view(), name='dashboard-unificado'),
 
-    # Incluir rutas del router (CRUD instituciones)
+    # Incluir URLs del router (CRUD automático)
     path('', include(router.urls)),
 ]
