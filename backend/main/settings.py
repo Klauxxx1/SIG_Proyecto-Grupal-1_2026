@@ -22,8 +22,13 @@ if os.name == 'nt':
         # Forzamos a que use ESTA ruta para las proyecciones
         os.environ['PROJ_LIB'] = proj_lib_path
 
-        # 3. Apuntamos al archivo DLL.
-        GDAL_LIBRARY_PATH = os.path.join(QGIS_BIN_PATH, "gdal311.dll")
+        # 3. Apuntamos al archivo DLL de forma dinámica
+        import glob
+        gdal_dlls = glob.glob(os.path.join(QGIS_BIN_PATH, "gdal*.dll"))
+        if gdal_dlls:
+            GDAL_LIBRARY_PATH = gdal_dlls[0]
+        else:
+            GDAL_LIBRARY_PATH = os.path.join(QGIS_BIN_PATH, "gdal311.dll")
     else:
         print("ADVERTENCIA: No se encontró la variable QGIS_BIN_PATH en el .env o la ruta no existe.")
 
