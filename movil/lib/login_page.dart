@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   Future<void> _login() async {
     setState(() => _loading = true);
-    final url = Uri.parse("http://192.168.0.32:8000/api/login/");
+    final url = Uri.parse("http://192.168.0.13:8000/api/login/");
     
     try {
       final response = await http.post(url, body: {
@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     try {
       String? fcmToken = await FirebaseMessaging.instance.getToken();
       if (fcmToken != null) {
-        final url = Uri.parse("http://192.168.0.32:8000/api/usuarios/registrar-token/");
+        final url = Uri.parse("http://192.168.0.13:8000/api/usuarios/registrar-token/");
         await http.post(
           url,
           headers: {
