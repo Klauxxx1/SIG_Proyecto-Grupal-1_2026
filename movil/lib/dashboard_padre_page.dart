@@ -129,7 +129,7 @@ class _DashboardPadrePageState extends State<DashboardPadrePage> with TickerProv
     if (token == null) return;
 
     try {
-      final url = Uri.parse("http://192.168.0.13:8000/api/monitoreo/dashboard-unificado/");
+      final url = Uri.parse("http://172.20.10.4:8000/api/monitoreo/dashboard-unificado/");
       final response = await http.get(url, headers: {"Authorization": "Bearer $token"});
 
       if (response.statusCode == 200) {
@@ -272,7 +272,7 @@ class _DashboardPadrePageState extends State<DashboardPadrePage> with TickerProv
     final token = prefs.getString('jwt_token');
     
     String fechaStr = "${_fechaSeleccionada.year}-${_fechaSeleccionada.month.toString().padLeft(2,'0')}-${_fechaSeleccionada.day.toString().padLeft(2,'0')}";
-    final url = Uri.parse("http://192.168.0.13:8000/api/monitoreo/historial/$deviceId/?fecha=$fechaStr");
+    final url = Uri.parse("http://172.20.10.4:8000/api/monitoreo/historial/$deviceId/?fecha=$fechaStr");
     
     try {
       final response = await http.get(url, headers: {"Authorization": "Bearer $token"});
