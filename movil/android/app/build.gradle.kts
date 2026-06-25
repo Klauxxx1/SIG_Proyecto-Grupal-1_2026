@@ -70,7 +70,7 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 
     // Importar la plataforma BOM de Firebase (Maneja las versiones por ti)
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
 
     // Librerías de Firebase (Sin número de versión porque el BOM lo controla)
     implementation("com.google.firebase:firebase-analytics")
