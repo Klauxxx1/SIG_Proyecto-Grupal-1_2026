@@ -18,7 +18,7 @@ class SafeKidHome extends StatefulWidget {
 
 class _SafeKidHomeState extends State<SafeKidHome> with WidgetsBindingObserver {
   // CONFIGURA TU IP AQUÍ
-  final String backendUrl = "http://172.20.10.4:8000/api/monitoreo/reportar/";
+  final String backendUrl = "http://192.168.0.13:8000/api/monitoreo/reportar/";
 
   String _estado = "Inicializando...";
   Color _colorEstado = Colors.grey;
