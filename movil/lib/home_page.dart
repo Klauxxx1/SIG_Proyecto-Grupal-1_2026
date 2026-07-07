@@ -15,10 +15,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _idController = TextEditingController(text: "android123");
 
-// Notificaciones de alerta
+  // Notificaciones de alerta
   @override
   void initState() {
     super.initState();
+    _solicitarPermisoNotificaciones();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {      
       if (message.notification != null) {
         NotificationService().mostrarNotificacion(
@@ -27,6 +28,20 @@ class _HomePageState extends State<HomePage> {
         );
       }
     });
+  }
+
+  Future<void> _solicitarPermisoNotificaciones() async {
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      print("Permiso de notificaciones obtenido: ${settings.authorizationStatus}");
+    } catch (e) {
+      print("Error solicitando permisos de notificaciones: $e");
+    }
   }
 
 // Interfaz de selección de modo
