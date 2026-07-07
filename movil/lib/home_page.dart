@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             const Icon(Icons.security, size: 80, color: Colors.red),
             const SizedBox(height: 20),
-            const Text("SafeKid SIG",
+            const Text("Rastreador para mi hijo",
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
