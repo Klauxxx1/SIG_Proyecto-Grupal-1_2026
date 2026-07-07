@@ -80,8 +80,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     try {
       String? fcmToken = await FirebaseMessaging.instance.getToken();
       if (fcmToken != null) {
-        final url = Uri.parse("http://192.168.0.13:8000/api/usuarios/registrar-token/");
-        await http.post(
+        final url = Uri.parse("http://192.168.0.13:8000/api/auth/registrar-token/");
+        final response = await http.post(
           url,
           headers: {
             "Authorization": "Bearer $jwtToken", 
@@ -91,6 +91,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             "fcm_token": fcmToken
           }),
         );
+        print("Status code del registro de token: ${response.statusCode}");
+        print("Body del registro de token: ${response.body}");
         print("Token FCM enviado al servidor: $fcmToken");
       }
     } catch (e) {
@@ -107,9 +109,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFF1E3A8A), // Azul profundo
-              const Color(0xFF3B82F6), // Azul medio
-              const Color(0xFF60A5FA), // Azul claro
+              const Color(0xFF7F1D1D), // Rojo profundo
+              const Color(0xFFB91C1C), // Rojo medio
+              const Color(0xFFEF4444), // Rojo claro
             ],
           ),
         ),
@@ -199,7 +201,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               },
                               decoration: InputDecoration(
                                 labelText: "Usuario / Tutor",
-                                prefixIcon: const Icon(Icons.account_circle_outlined, color: Color(0xFF3B82F6)),
+                                prefixIcon: const Icon(Icons.account_circle_outlined, color: Color(0xFFB91C1C)),
                                 filled: true,
                                 fillColor: const Color(0xFFF1F5F9),
                                 border: OutlineInputBorder(
@@ -212,7 +214,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+                                  borderSide: const BorderSide(color: Color(0xFFB91C1C), width: 2),
                                 ),
                                 errorBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -236,7 +238,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               },
                               decoration: InputDecoration(
                                 labelText: "Contraseña",
-                                prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF3B82F6)),
+                                prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFB91C1C)),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
@@ -282,7 +284,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                 child: const Text(
                                   "¿Olvidaste tu contraseña?",
                                   style: TextStyle(
-                                    color: Color(0xFF3B82F6),
+                                    color: Color(0xFFB91C1C),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -301,7 +303,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF3B82F6),
+                                  backgroundColor: const Color(0xFFB91C1C),
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
@@ -337,7 +339,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     
                     // Footer
                     Text(
-                      "© 2025 Sistema de Seguridad Infantil - Santa Cruz",
+                      "© 2026 Sistema de Seguridad Infantil - Santa Cruz",
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 12,

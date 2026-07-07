@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.security, size: 80, color: Colors.blue),
+            const Icon(Icons.security, size: 80, color: Colors.red),
             const SizedBox(height: 20),
             const Text("SafeKid SIG",
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.admin_panel_settings), // Icono de Admin
                 label: const Text("ACCESO PADRES (Login)"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
               ),
